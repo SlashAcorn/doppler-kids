@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://slashacorn.github.io/doppler-kids/'
 locale = 'en-us'
 title = 'Doppler Kids'
 theme = 'hugo-paper'
