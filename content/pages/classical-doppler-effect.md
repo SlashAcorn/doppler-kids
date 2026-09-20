@@ -39,14 +39,14 @@ which would be a lower pitched sound. Imagine the 2D graph of the wave being
 stretched out or squashed depending on whether you are in front of or behind the
 source of the wave when it is moving
 
+{{< video
+  src="car.mp4"
+>}}
+
 The doppler effect explains why when a car drives past you, you can hear the
 noise getting higher pitched, and then lower pitched in the moment that it
 passes you. When the car is coming towards you, the gaps between the waves are
 smaller, but when the car passes you, you are suddenly behind it, so the gaps in
-the waves quickly begin increasing. You can hear this quick change in the video
-below. As the F1 car passes very quickly, you go from being in front of it to
-behind it very fast so the difference in pitch of the car is very noticable
-
-{{< video
-  src="car.mp4"
->}}
+the waves switch quickly to getting bigger. You can hear this quick change in
+the video. As the F1 car passes very quickly, you go from being in front of it
+to behind it very fast so the difference in pitch of the car is very noticable
