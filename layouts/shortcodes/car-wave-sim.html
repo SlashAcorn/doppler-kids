@@ -1,0 +1,114 @@
+{{- /*
+  Usage: {{< pixi-emitter >}}
+         {{< pixi-emitter height="300" >}}
+  Save as: layouts/shortcodes/pixi-emitter.html
+*/ -}}
+{{- $id := printf "car-wave-sim-%d" .Ordinal -}}
+{{- $height := .Get "height" | default 400 -}}
+{{- $src := .Get "src" | default "car.png" | relURL -}}
+<div id="{{ $id }}" style="width:100%;height:{{ $height }}px;border-radius:8px;overflow:hidden;touch-action:none;"></div>
+<script type="module">
+import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.mjs";
+
+const host = document.getElementById("{{ $id }}");
+const app = new PIXI.Application();
+
+await app.init({
+  resizeTo: host,
+  background: "#14141f",
+  antialias: true,
+  resolution: window.devicePixelRatio || 1,
+  autoDensity: true,
+});
+host.appendChild(app.canvas);
+
+app.stage.eventMode = "static";
+app.stage.hitArea = app.screen;
+
+const COLOR = 0x4d96ff;      // ring and emitter colour
+const LINE_WIDTH = 4;        // ring thickness in px
+const MAX_RADIUS = 400;      // final ring radius in px
+const RING_DURATION = 1500;   // ms for a ring to reach MAX_RADIUS
+const EMIT_INTERVAL = 400;   // ms between rings (constant rate)
+const EMITTER_SIZE = 70;   // drawn size of the draggable object
+const GRAB_RADIUS = 26;      // clickable area, larger than the drawn size
+
+// Rings go in their own layer so the emitter always draws on top.
+const ringLayer = new PIXI.Container();
+app.stage.addChild(ringLayer);
+
+const texture = await PIXI.Assets.load("{{ $src }}");
+
+const sprite = new PIXI.Sprite(texture);
+sprite.anchor.set(0.5);
+sprite.scale.set(EMITTER_SIZE / texture.width);
+
+// Wrap the sprite in a container so the hit area isn't affected by the sprite's scale.
+const emitter = new PIXI.Container();
+emitter.addChild(sprite);
+emitter.position.set(app.screen.width / 2, app.screen.height / 2);
+emitter.eventMode = "static";
+emitter.cursor = "grab";
+emitter.hitArea = new PIXI.Circle(0, 0, GRAB_RADIUS);
+app.stage.addChild(emitter);
+
+// Dragging
+let dragging = false;
+const grabOffset = new PIXI.Point();
+
+emitter.on("pointerdown", (e) => {
+  dragging = true;
+  grabOffset.set(emitter.x - e.global.x, emitter.y - e.global.y);
+  emitter.cursor = "grabbing";
+});
+
+app.stage.on("pointermove", (e) => {
+  if (!dragging) return;
+  emitter.position.set(
+    Math.min(Math.max(e.global.x + grabOffset.x, 0), app.screen.width),
+    Math.min(Math.max(e.global.y + grabOffset.y, 0), app.screen.height)
+  );
+});
+
+const endDrag = () => {
+  dragging = false;
+  emitter.cursor = "grab";
+};
+app.stage.on("pointerup", endDrag);
+app.stage.on("pointerupoutside", endDrag);
+
+// Emission and ring animation
+const rings = [];
+let sinceLastEmit = 0;
+
+app.ticker.add((ticker) => {
+  const dt = ticker.deltaMS;
+
+  sinceLastEmit += dt;
+  while (sinceLastEmit >= EMIT_INTERVAL) {
+    sinceLastEmit -= EMIT_INTERVAL;
+    const g = new PIXI.Graphics();
+    g.position.copyFrom(emitter.position);
+    ringLayer.addChild(g);
+    rings.push({ g, life: 0 });
+  }
+
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i];
+    r.life += dt;
+
+    const t = Math.min(r.life / RING_DURATION, 1);
+    const radius = Math.max(t * MAX_RADIUS, 0.5);
+
+    r.g.clear()
+      .circle(0, 0, radius)
+      .stroke({ width: LINE_WIDTH, color: COLOR });
+    r.g.alpha = 1 - t;
+
+    if (t >= 1) {
+      r.g.destroy();
+      rings.splice(i, 1);
+    }
+  }
+});
+</script>

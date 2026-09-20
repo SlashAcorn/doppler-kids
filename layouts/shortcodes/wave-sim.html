@@ -1,0 +1,63 @@
+{{- /*
+  Usage: {{< pixi-circles >}}
+         {{< pixi-circles height="300" >}}
+  Save as: layouts/shortcodes/pixi-circles.html
+*/ -}}
+{{- $id := printf "wave-sim-%d" .Ordinal -}}
+{{- $height := .Get "height" | default 400 -}}
+<div id="{{ $id }}" style="width:100%;height:{{ $height }}px;border-radius:8px;overflow:hidden;cursor:crosshair;"></div>
+<script type="module">
+import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.mjs";
+
+const host = document.getElementById("{{ $id }}");
+const app = new PIXI.Application();
+
+await app.init({
+  resizeTo: host,
+  background: "#14141f",
+  antialias: true,
+  resolution: window.devicePixelRatio || 1,
+  autoDensity: true,
+});
+host.appendChild(app.canvas);
+
+app.stage.eventMode = "static";
+app.stage.hitArea = app.screen;
+
+const COLOR = 0x4d96ff;   // ring colour
+const LINE_WIDTH = 4;     // ring thickness in px (constant)
+const MAX_RADIUS = 300;   // final radius in px
+const DURATION = 120;      // frames to reach MAX_RADIUS (~60 frames/sec)
+
+const rings = [];
+
+app.stage.on("pointerdown", (e) => {
+  const g = new PIXI.Graphics();
+  g.position.set(e.global.x, e.global.y);
+  app.stage.addChild(g);
+  rings.push({ g, life: 0 });
+});
+
+app.ticker.add((ticker) => {
+  const dt = ticker.deltaTime;
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i];
+    r.life += dt;
+
+    const t = Math.min(r.life / DURATION, 1);
+    const radius = Math.max(t * MAX_RADIUS, 0.5);
+
+    // Redraw at the real radius every frame so the stroke width stays
+    // constant and Pixi tessellates the circle with enough segments.
+    r.g.clear()
+      .circle(0, 0, radius)
+      .stroke({ width: LINE_WIDTH, color: COLOR });
+    r.g.alpha = 1 - t;
+
+    if (t >= 1) {
+      r.g.destroy();
+      rings.splice(i, 1);
+    }
+  }
+});
+</script>
