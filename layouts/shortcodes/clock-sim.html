@@ -1,0 +1,125 @@
+{{- /*
+  Usage: {{< pixi-sprite src="clock-sprite.png" cols="2" rows="2" >}}
+  Params (all optional):
+    src     path of a sprite sheet in static/     (default sprite.png)
+    cols    columns in the sheet                  (default 4)
+    rows    rows in the sheet                     (default 1)
+    frames  number of frames to use               (default cols * rows)
+    size    displayed width in px                 (default 80)
+    height  height of the embed in px             (default 400)
+  Frames are read left to right, top to bottom, all the same size.
+  Save as: layouts/shortcodes/pixi-sprite.html
+*/ -}}
+{{- $id := printf "pixi-sprite-%d" .Ordinal -}}
+{{- $height := .Get "height" | default 400 -}}
+{{- $src := .Get "src" | default "clock-sprite.png" | relURL -}}
+{{- $cols := .Get "cols" | default 2 | int -}}
+{{- $rows := .Get "rows" | default 2 | int -}}
+{{- $frames := .Get "frames" | default (mul $cols $rows) | int -}}
+{{- $size := .Get "size" | default 80 | int -}}
+<div id="{{ $id }}" style="width:100%;height:{{ $height }}px;border-radius:8px;overflow:hidden;touch-action:none;background-color:#14141f;{{ with .Get "bg" }}background-image:url('{{ . | relURL }}');background-size:cover;background-position:center;{{ end }}"></div>
+<script type="module">
+import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.mjs";
+
+const COLS = {{ $cols }};
+const ROWS = {{ $rows }};
+const FRAMES = {{ $frames }};
+const SIZE = {{ $size }};        // displayed width in px
+
+const BASE_FPS = 8;             // animation speed when the sprite is still
+const SLOWDOWN = 300;            // drag speed (px/s) at which the animation runs at half speed
+const SMOOTHING_MS = 120;        // higher = speed reading reacts more slowly
+const PIXEL_ART = false;         // true = crisp nearest-neighbour scaling
+
+const host = document.getElementById("{{ $id }}");
+const app = new PIXI.Application();
+
+await app.init({
+  resizeTo: host,
+  backgroundAlpha: 0,
+  antialias: true,
+  resolution: window.devicePixelRatio || 1,
+  autoDensity: true,
+});
+host.appendChild(app.canvas);
+
+app.stage.eventMode = "static";
+app.stage.hitArea = app.screen;
+
+// Slice the sheet into frame textures
+const sheet = await PIXI.Assets.load("{{ $src }}");
+if (PIXEL_ART) sheet.source.scaleMode = "nearest";
+
+const fw = sheet.width / COLS;
+const fh = sheet.height / ROWS;
+const frames = [];
+for (let i = 0; i < FRAMES; i++) {
+  const col = i % COLS;
+  const row = Math.floor(i / COLS);
+  frames.push(
+    new PIXI.Texture({
+      source: sheet.source,
+      frame: new PIXI.Rectangle(col * fw, row * fh, fw, fh),
+    })
+  );
+}
+
+const sprite = new PIXI.Sprite(frames[0]);
+sprite.anchor.set(0.5);
+sprite.scale.set(SIZE / fw);
+sprite.position.set(app.screen.width / 2, app.screen.height / 2);
+sprite.eventMode = "static";
+sprite.cursor = "grab";
+app.stage.addChild(sprite);
+
+// Dragging
+let dragging = false;
+const grabOffset = new PIXI.Point();
+
+sprite.on("pointerdown", (e) => {
+  dragging = true;
+  grabOffset.set(sprite.x - e.global.x, sprite.y - e.global.y);
+  sprite.cursor = "grabbing";
+});
+
+app.stage.on("pointermove", (e) => {
+  if (!dragging) return;
+  sprite.position.set(
+    Math.min(Math.max(e.global.x + grabOffset.x, 0), app.screen.width),
+    Math.min(Math.max(e.global.y + grabOffset.y, 0), app.screen.height)
+  );
+});
+
+const endDrag = () => {
+  dragging = false;
+  sprite.cursor = "grab";
+};
+app.stage.on("pointerup", endDrag);
+app.stage.on("pointerupoutside", endDrag);
+
+// Animation: faster drag = slower playback
+let lastX = sprite.x;
+let lastY = sprite.y;
+let smoothSpeed = 0;   // px/s, smoothed
+let progress = 0;      // fractional frame position
+let currentFrame = 0;
+
+app.ticker.add((ticker) => {
+  const dt = ticker.deltaMS;
+  if (dt <= 0) return;
+
+  const instant = (Math.hypot(sprite.x - lastX, sprite.y - lastY) / dt) * 1000;
+  lastX = sprite.x;
+  lastY = sprite.y;
+  smoothSpeed += (instant - smoothSpeed) * Math.min(1, dt / SMOOTHING_MS);
+
+  const fps = BASE_FPS / (1 + smoothSpeed / SLOWDOWN);
+  progress = (progress + (fps * dt) / 1000) % FRAMES;
+
+  const index = Math.floor(progress);
+  if (index !== currentFrame) {
+    currentFrame = index;
+    sprite.texture = frames[index];
+  }
+});
+</script>
