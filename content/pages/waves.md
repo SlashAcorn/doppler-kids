@@ -15,6 +15,8 @@ Waves have three main properties:
 * Wavelength
 * Amplitude
 
+![](/wave-properties.jpg "Wave properties")
+
 ### Frequency
 Frequency is the number of times that the wave goes up and down at a point per
 second. Frequency can be applied to the examples from earlier in the following
