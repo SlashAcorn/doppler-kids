@@ -2,6 +2,8 @@
 title = 'Special Relativity'
 +++
 
+!["Portrait photo of Albert Einstein"](/bert.jpg "Albert Einstein")
+
 Albert Einstein developed the theory of **special relativity**. It explains how
 time and space are connected. Time and space can change when objects move very
 fast. Light always moves at the same speed, so time and space may need to
