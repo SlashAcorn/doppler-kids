@@ -1,0 +1,146 @@
+{{- /*
+  Usage: {{< pixi-flyaway center="planet.png" ship="rocket.png" >}}
+  Params (all optional):
+    center        image in static/ for the fixed centre sprite   (default center.png)
+    ship          image in static/ for the flying sprite         (default ship.png)
+    centerSize    displayed width of the centre sprite in px     (default 60)
+    centerOffset  distance from the left edge to the centre      (default 80)
+                  sprite's position, in px
+    shipSize      displayed width of the ship sprite in px       (default 40)
+    shipGap       gap between the centre sprite's edge and       (default 20)
+                  the ship's starting position, in px
+    bg            background image in static/                    (none = solid colour)
+    sliderMin     minimum speed, px/s                             (default 0)
+    sliderMax     maximum speed, px/s                             (default 400)
+    sliderDefault starting speed, px/s                            (default 100)
+    height        height of the embed in px                       (default 400)
+  The centre sprite sits fixed on the left, vertically centred. The ship
+  starts just to its right and flies out to the right edge, then snaps
+  back to its starting position next to the centre sprite, looping.
+  Save as: layouts/shortcodes/pixi-flyaway.html
+*/ -}}
+{{- $id := printf "pixi-flyaway-%d" .Ordinal -}}
+{{- $height := .Get "height" | default 400 -}}
+{{- $centerSrc := .Get "center" | default "center.png" | relURL -}}
+{{- $shipSrc := .Get "ship" | default "ship.png" | relURL -}}
+{{- $centerSize := .Get "centerSize" | default 120 | int -}}
+{{- $centerOffset := .Get "centerOffset" | default 80 | int -}}
+{{- $shipSize := .Get "shipSize" | default 80 | int -}}
+{{- $shipGap := .Get "shipGap" | default 20 | int -}}
+{{- $sliderMin := .Get "sliderMin" | default 20 -}}
+{{- $sliderMax := .Get "sliderMax" | default 200 -}}
+{{- $sliderDefault := .Get "sliderDefault" | default 100 -}}
+<div style="width:100%;">
+  <div id="{{ $id }}" style="width:100%;height:{{ $height }}px;border-radius:8px 8px 0 0;overflow:hidden;background-color:#14141f;{{ with .Get "bg" }}background-image:url('{{ . | relURL }}');background-size:cover;background-position:center;{{ end }}"></div>
+  <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.9rem;background:#0c0c14;border-radius:0 0 8px 8px;">
+    <label for="{{ $id }}-speed" style="color:#aaa;font:13px
+    sans-serif;white-space:nowrap;">Spaceship Speed</label>
+    <input id="{{ $id }}-speed" type="range" min="{{ $sliderMin }}" max="{{ $sliderMax }}" value="{{ $sliderDefault }}" step="1" style="flex:1;">
+  </div>
+</div>
+<script type="module">
+import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.mjs";
+
+const CENTER_SIZE = {{ $centerSize }};      // displayed width in px
+const CENTER_OFFSET = {{ $centerOffset }};  // px from left edge to centre sprite's x position
+const SHIP_SIZE = {{ $shipSize }};          // displayed width in px
+const SHIP_GAP = {{ $shipGap }};            // px between centre sprite edge and ship's start
+
+const COLOR = 0x4d96ff;         // ring colour
+const LINE_WIDTH = 4;           // ring thickness in px
+const MAX_RING_RADIUS = 550;     // final ring radius in px
+const RING_DURATION = 1900;      // ms for a ring to reach MAX_RING_RADIUS
+const BASE_INTERVAL = 250;      // ms between rings when speed is 0
+const SLOWDOWN = 150;           // speed (px/s) at which the emission interval doubles
+
+const host = document.getElementById("{{ $id }}");
+const slider = document.getElementById("{{ $id }}-speed");
+const app = new PIXI.Application();
+
+await app.init({
+  resizeTo: host,
+  backgroundAlpha: 0,
+  antialias: true,
+  resolution: window.devicePixelRatio || 1,
+  autoDensity: true,
+});
+host.appendChild(app.canvas);
+
+// Centre sprite (fixed, left side, vertically centred)
+const centerTex = await PIXI.Assets.load("{{ $centerSrc }}");
+const center = new PIXI.Sprite(centerTex);
+center.anchor.set(0.5);
+center.scale.set(CENTER_SIZE / centerTex.width);
+app.stage.addChild(center);
+
+// Ship (flies left to right, loops back to its start position)
+const ringLayer = new PIXI.Container();
+app.stage.addChild(ringLayer);
+
+const shipTex = await PIXI.Assets.load("{{ $shipSrc }}");
+const ship = new PIXI.Sprite(shipTex);
+ship.anchor.set(0.5);
+ship.scale.set(SHIP_SIZE / shipTex.width);
+app.stage.addChild(ship);
+
+let startX = 0;
+let maxDistance = 0;
+let traveled = 0;
+
+const layout = () => {
+  center.position.set(CENTER_OFFSET, app.screen.height / 2);
+  startX = CENTER_OFFSET + CENTER_SIZE / 2 + SHIP_GAP;
+  maxDistance = (app.screen.width - startX) + SHIP_SIZE; // clears fully off-screen before looping
+  positionShip();
+};
+
+const positionShip = () => {
+  ship.position.set(startX + traveled, center.y);
+};
+
+layout();
+app.renderer.on("resize", layout);
+
+// Movement and ring emission
+const rings = [];
+let sinceLastEmit = 0;
+
+app.ticker.add((ticker) => {
+  const dt = ticker.deltaMS;
+  const speed = Number(slider.value); // px/s
+
+  traveled += speed * (dt / 1000);
+  if (traveled >= maxDistance) {
+    traveled = 0; // loop back to the start position
+  }
+  positionShip();
+
+  const interval = BASE_INTERVAL * (1 + speed / SLOWDOWN);
+  sinceLastEmit += dt;
+  while (sinceLastEmit >= interval) {
+    sinceLastEmit -= interval;
+    const g = new PIXI.Graphics();
+    g.position.copyFrom(ship.position);
+    ringLayer.addChild(g);
+    rings.push({ g, life: 0 });
+  }
+
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i];
+    r.life += dt;
+
+    const t = Math.min(r.life / RING_DURATION, 1);
+    const radius = Math.max(t * MAX_RING_RADIUS, 0.5);
+
+    r.g.clear()
+      .circle(0, 0, radius)
+      .stroke({ width: LINE_WIDTH, color: COLOR });
+    r.g.alpha = 1 - t;
+
+    if (t >= 1) {
+      r.g.destroy();
+      rings.splice(i, 1);
+    }
+  }
+});
+</script>
