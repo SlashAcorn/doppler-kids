@@ -11,12 +11,12 @@
   Save as: layouts/shortcodes/pixi-sprite.html
 */ -}}
 {{- $id := printf "pixi-sprite-%d" .Ordinal -}}
-{{- $height := .Get "height" | default 400 -}}
+{{- $height := .Get "height" | default 500 -}}
 {{- $src := .Get "src" | default "clock-sprite.png" | relURL -}}
 {{- $cols := .Get "cols" | default 2 | int -}}
 {{- $rows := .Get "rows" | default 2 | int -}}
 {{- $frames := .Get "frames" | default (mul $cols $rows) | int -}}
-{{- $size := .Get "size" | default 80 | int -}}
+{{- $size := .Get "size" | default 120 | int -}}
 <div id="{{ $id }}" style="width:100%;height:{{ $height }}px;border-radius:8px;overflow:hidden;touch-action:none;background-color:#14141f;{{ with .Get "bg" }}background-image:url('{{ . | relURL }}');background-size:cover;background-position:center;{{ end }}"></div>
 <script type="module">
 import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.mjs";
@@ -29,7 +29,7 @@ const SIZE = {{ $size }};        // displayed width in px
 const BASE_FPS = 8;             // animation speed when the sprite is still
 const SLOWDOWN = 300;            // drag speed (px/s) at which the animation runs at half speed
 const SMOOTHING_MS = 120;        // higher = speed reading reacts more slowly
-const PIXEL_ART = false;         // true = crisp nearest-neighbour scaling
+const PIXEL_ART = true;         // true = crisp nearest-neighbour scaling
 
 const host = document.getElementById("{{ $id }}");
 const app = new PIXI.Application();
