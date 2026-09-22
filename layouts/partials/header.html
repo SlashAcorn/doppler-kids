@@ -13,21 +13,11 @@
       aria-label="Dark"
     ></div>
   </div>
-
-
   <div class="relative z-50 flex items-center ltr:mr-8 rtl:ml-8">
     <a class="-translate-y-[1px] text-2xl font-medium" href="{{- `pages` | absURL
                                                              -}}" >{{ "Index"
                                                              }}</a >
   </div>
-
-
-
-  <div
-    class="btn-menu relative z-50 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden ltr:-mr-8 rtl:-ml-8"
-    role="button"
-    aria-label="Menu"
-  ></div>
 
   {{- $bg_color := $.Scratch.Get "bg_color" -}}<!---->
 
@@ -37,12 +27,6 @@
     setTimeout(() => {
       htmlClass.remove('not-ready');
     }, 10);
-
-    // mobile menu
-    const btnMenu = document.querySelector('.btn-menu');
-    btnMenu.addEventListener('click', () => {
-      htmlClass.toggle('open');
-    });
 
     // dark theme
     const metaTheme = document.querySelector('meta[name="theme-color"]');
