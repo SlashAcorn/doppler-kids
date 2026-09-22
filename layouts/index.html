@@ -2,14 +2,5 @@
   <main>
     <h1>{{ .Title }}</h1>
     {{ .Content }}
-
-    <h2>List of Pages</h2>
-    <ul>
-      {{ range (site.GetPage "pages").Pages }}
-        <li>
-          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-        </li>
-      {{ end }}
-    </ul>
   </main>
 {{ end }}
