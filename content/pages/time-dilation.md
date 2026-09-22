@@ -11,4 +11,4 @@ still next to you.
 Watch the speed of the clock when it sits still. Then drag the clock around, and
 see how the ticking slows down the faster you move it. This is time dilation.
 
-{{< clock-sim src="clock-sprites-high-res.png" cols="2" rows="2" bg="sky.png">}}
+{{< clock-sim src="clock-sprites.png" cols="2" rows="2" bg="sky.png">}}
