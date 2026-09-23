@@ -1,5 +1,6 @@
 +++
 title = 'Time Dilation'
+weight = 5
 +++
 
 **Time dilation** is where time passes differently for things that are moving at

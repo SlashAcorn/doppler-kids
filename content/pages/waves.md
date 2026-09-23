@@ -1,5 +1,6 @@
 +++
 title = 'Waves'
+weight = 1
 +++
 
 ## What is a Wave

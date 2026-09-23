@@ -1,5 +1,6 @@
 +++
 title = 'Relativistic Doppler Effect'
+weight = 6
 +++
 
 To refresh on what the relativistic Doppler effect actually is: \

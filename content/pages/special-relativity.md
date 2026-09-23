@@ -1,5 +1,6 @@
 +++
 title = 'Special Relativity'
+weight = 4
 +++
 
 !["Portrait photo of Albert Einstein"](/bert.jpg "Albert Einstein")

@@ -1,6 +1,6 @@
 +++
-draft = false
 title = 'Redshift'
+weight = 7
 +++
 
 ## What is Redshift?

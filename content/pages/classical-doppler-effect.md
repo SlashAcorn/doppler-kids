@@ -1,5 +1,6 @@
 +++
 title = 'Classical Doppler Effect'
+weight = 2
 +++
 
 ## What is the Doppler Effect
