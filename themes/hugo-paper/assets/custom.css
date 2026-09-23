@@ -1,2 +1,33 @@
 /* Place custom css here. */
 @reference './app.css';
+
+.centred-figure {
+  text-align: center;
+}
+
+.centred-figure-landscape {
+  text-align: center;
+}
+
+.centred-figure-portrait {
+  text-align: center;
+}
+
+.centred-figure img {
+  display: block !important;
+  margin: 0 auto !important;
+  width: 70% !important;
+}
+
+.centred-figure-landscape img {
+  display: block !important;
+  margin: 0 auto !important;
+  width: 90% !important;
+}
+
+
+.centred-figure-portrait img {
+  display: block !important;
+  margin: 0 auto !important;
+  width: 50% !important;
+}

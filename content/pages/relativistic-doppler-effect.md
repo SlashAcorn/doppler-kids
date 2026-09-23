@@ -27,8 +27,12 @@ caused by time dilation
 There are two types of relativistic Doppler effect, transverse and longitudinal.
 Consider the two cases in the diagram below.
 
-![Diagram of space with the Earth orbited by a satellite and a space shuttle
-flying away from the Earth](/space.png "Space Diagram ")
+{{< figure
+    src="/doppler-kids/space.png"
+    alt="Diagram of space with the Earth orbited by a satellite and a space shuttle flying away from the Earth"
+    caption="Space Diagram"
+    class="centred-figure-landscape"
+>}}
 
 The satellite is an example of the transverse effect. The satellite orbits the
 earth and communicates with us using light waves.

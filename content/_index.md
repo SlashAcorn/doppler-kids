@@ -15,9 +15,11 @@ This website is meant to explain the relativistic Doppler effect to a 12-13 year
 * Start by reading this page, then click next.
 
 # Relativistic Doppler Effect
-
-!["diagram of stars moving towards, stationary, and away from earth and their
-change in colour"](/redshift.png "Redshift")
+{{< figure
+    src="/doppler-kids/redshift.png"
+    alt="diagram of stars moving towards, stationary, and away from earth and their change in colour"
+    class="centred-figure-landscape"
+>}}
 
 ## What is the Relativistic Doppler Effect
 The **relativistic Doppler** effect describes how light changes. When the source
