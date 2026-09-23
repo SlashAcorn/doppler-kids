@@ -37,6 +37,17 @@ Here's what frequency means for each example:
   range of frequencies make up the rainbow. \
   Red light is a lower frequency than blue light.
 
+Watch the waves on the simulation below.
+
+#### Frequency Simulation
+{{< frequency-sim left="tuba.png" right="recorder.png" >}}
+
+Notice how the tuba makes waves less frequently than the recorder. \
+This is why a tuba sounds lower pitched than a recorder.
+
+The recorder is making more waves in the same amount of time. \
+This means its frequency is higher, so it sounds more high pitched.
+
 ### Wavelength
 Frequency is tied to wavelength. The wavelength is the distance between two
 matching points on the wave, usually from one peak to the next.
