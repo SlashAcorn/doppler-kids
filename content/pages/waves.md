@@ -59,6 +59,21 @@ also a part of the earlier examples:
 * The amplitude of a wave at the beach is its height. The bigger the wave, the
   harder it will hit you and might knock you over. \
   This is because the bigger waves carry more energy.
+
+  {{< figure
+      src="/doppler-kids/small-wave.png"
+      alt="Photo of a small wave in the ocean"
+      caption="Small Wave"
+      class="centred-figure" >}}
+
+  {{< figure
+      src="/doppler-kids/big-wave.png"
+      alt="Photo of a large wave in the ocean"
+      caption="Big Wave"
+      class="centred-figure" >}}
+
+    The difference between these two waves is their amplitude. The second one has a higher amplitude
+
 * The amplitude of a sound wave is how loud it sounds. \
   Something that makes a louder noise makes waves with more energy (higher
   amplitude) which sounds louder.
